@@ -1,51 +1,50 @@
-Welcome!
-Learn how to use this tour: including how to navigate the different lessons and how to run code.
+Привет!
+Узнай как пользоваться обучающим курсом, включая навигацию и запуск кода.
 
-The Go Authors
+Авторы Go
 https://golang.org
 
-* Hello, 世界
+* Привет, 世界
 
-Welcome to a tour of the [[https://golang.org/][Go programming language]].
+Добро пожаловать на обучающий тур по [[https://golang.org/][языку программирования Go]].
 
-The tour is divided into a list of modules that you can
-access by clicking on
-[[javascript:highlight(".logo")][A Tour of Go]] on the top left of the page.
+Курс разделен на список модулей, доступ к которым вы можете получить, кликнув на ссылку
+[[javascript:highlight(".logo")][Тур по Go]] в левом верхнем углу страницы.
 
-You can also view the table of contents at any time by clicking on the [[javascript:highlightAndClick(".nav")][menu]] on the top right of the page.
 
-Throughout the tour you will find a series of slides and exercises for you
-to complete.
+Вы также можете посмотреть содержимое в любой момент, кликнув [[javascript:highlightAndClick(".nav")][меню]] в правом верхнем углу страницы.
 
-You can navigate through them using
+Тур состоит из серии слайдов и заданий, которые вы должны выполнить
 
-- [[javascript:highlight(".prev-page")]["previous"]] or `PageUp` to go to the previous page,
+Вы можете переходить от одной страницы к другой с помощью
 
-- [[javascript:highlight(".next-page")]["next"]] or `PageDown` to go to the next page.
+- [[javascript:highlight(".prev-page")]["назад"]] or `PageUp`, чтобы перейти к предыдущей странице,
 
-The tour is interactive. Click the
-[[javascript:highlightAndClick("#run")][Run]] button now 
-(or type `shift-enter`) to compile and run the program on
-#appengine: a remote server.
-your computer.
-The result is displayed below the code.
+- [[javascript:highlight(".next-page")]["далее"]] or `PageDown`, чтобы перейти к следующей странице.
 
-These example programs demonstrate different aspects of Go. The programs in the tour are meant to be starting points for your own experimentation.
+Тур является интерактивным. Кликните на кнопку
+[[javascript:highlightAndClick("#run")][Запуск]]
+(или нажмите сочетание клавиш `shift-enter`), чтобы скомпилировать и запустить код на
+#appengine: удаленном сервере.
 
-Edit the program and run it again.
+Результат будет показан под кодом.
 
-Note that when you click on [[javascript:highlightAndClick("#format")][Format]] or `ctrl-enter`
-the text in the editor is formatted using the
-[[https://golang.org/cmd/gofmt/][gofmt]] tool. You can switch on and off syntax highlighting
-the clicking on [[javascript:highlightAndClick(".syntax-checkbox")][syntax]] button.
+Данные программы демонстрируют различные аспекты Gp. Программы в туре являются стартовой точкой для ваших экспериментов.
 
-When you're ready to move on, click the [[javascript:highlightAndClick(".next-page")][right arrow]] below or type the `PageDown` key.
+Измените программу и запустите ее снова.
+
+Заметьте, что если вы нажмете кнопку [[javascript:highlightAndClick("#format")][формат]] или `ctrl-enter`,
+текст в редакторе кода будет отформатирован с использованием утилиты
+[[https://golang.org/cmd/gofmt/][gofmt]]. Вы можете переключить подсветку синтаксиса,
+нажав на кнопку [[javascript:highlightAndClick(".syntax-checkbox")][синтакс]].
+
+Если вы готовы двигаться дальше, кликните на [[javascript:highlightAndClick(".next-page")][стрелку вправо]] ниже или нажмите клавишу `PageDown`.
 
 .play welcome/hello.go
 
-* Go local
+* Тур на других языках
 
-The tour is available in other languages:
+Этот тур также доступен на других языках:
 
 - [[https://go-tour-br.appspot.com/][Brazilian Portuguese — Português do Brasil]]
 - [[https://go-tour-ca.appspot.com/][Catalan — Català]]
@@ -64,50 +63,50 @@ The tour is available in other languages:
 - [[https://go-tour-uz.appspot.com/][Uzbek — Ўзбекча]]
 - [[http://tur.a.golang.org.tr/][Turkish - Türkçe]]
 
-Click the [[javascript:highlightAndClick(".next-page")]["next"]] button or type `PageDown` to continue.
+Кликните [[javascript:highlightAndClick(".next-page")]["далее"]] или нажмите `PageDown` для продолжения.
 
-#appengine: * Go offline
+#appengine: * Автономная версия тура
 #appengine: 
-#appengine: This tour is also available as a stand-alone program that you can use
-#appengine: without access to the internet.
+#appengine: Этот тур также доступен как отдельная автономная программа, которой вы можете пользоваться
+#appengine: без необходимости доступа в интернет.
 #appengine: 
-#appengine: The stand-alone tour is faster, as it builds and runs the code samples
-#appengine: on your own machine.
+#appengine: Автономный тур быстрее, так как он компилирует и запускает код
+#appengine: на вашей локальной машине.
 #appengine: 
-#appengine: To run the tour locally first
-#appengine: [[http://golang.org/dl/][download and install Go]]
-#appengine: then start the tour from the command line:
+#appengine: Чтобы запустить тур локально,
+#appengine: [[http://golang.org/dl/][скачайте и установите Go]]
+#appengine: затем запустите тур из командной строки:
 #appengine: 
 #appengine: 	go tool tour
 #appengine: 
-#appengine: The tour program will open a web browser displaying
-#appengine: your local version of the tour.
+#appengine: У вас откроется браузер
+#appengine: с вашей локальной версией тура.
 #appengine: 
-#appengine: Or, of course, you can continue to take the tour through this web site.
+#appengine: Или, конечно, вы можете продолжить прохождение тура на этом веб-сайте.
 
-#appengine: * The Go Playground
+#appengine: * Go Playground
 #appengine: 
-#appengine: This tour is built atop the [[https://play.golang.org/][Go Playground]], a
-#appengine: web service that runs on [[https://golang.org/][golang.org]]'s servers.
+#appengine: Этот тут построен на [[https://play.golang.org/][Go Playground]],
+#appengine: веб-сервисе, который работает на серверах [[https://golang.org/][golang.org]].
 #appengine: 
-#appengine: The service receives a Go program, compiles, links, and runs the program inside
-#appengine: a sandbox, then returns the output.
+#appengine: Сервис получает программу на языке Go, компилирует, линкует и запускает программу внутри
+#appengine: песочницы, а затем возвращает результат.
 #appengine: 
-#appengine: There are limitations to the programs that can be run in the playground: 
+#appengine: Есть некоторые ограничение на программы, запускаемые в Go Playground:
 #appengine: 
-#appengine: - In the playground the time begins at 2009-11-10 23:00:00 UTC (determining the significance of this date is an exercise for the reader). This makes it easier to cache programs by giving them deterministic output.
+#appengine: - Время начинается с 2009-11-10 23:00:00 UTC (определение значимости этой даты оставим читателю). Это позволяет упростить кэширование программ путем детерминированного вывода.
 #appengine: 
-#appengine: - There are also limits on execution time and on CPU and memory usage, and the program cannot access external network hosts. 
+#appengine: - Программа имеет ограничения на время выполнения, использование CPU и памяти, а также не имеет доступа к внешним сетевым ресурсам.
 #appengine: 
-#appengine: The playground uses the latest stable release of Go.
+#appengine: Go Playground использует последнюю стабильную версию Go.
 #appengine: 
-#appengine: Read "[[https://blog.golang.org/playground][Inside the Go Playground]]" to learn more.
+#appengine: Для большей информации о Go Playground прочтите "[[https://blog.golang.org/playground][Внутри Go Playground]]".
 #appengine: 
 #appengine: .play welcome/sandbox.go
 
-* Congratulations
+* Поздравления
 
-You've finished the first module of the tour!
+Вы завершили первый модуль тура!
 
-Now click on [[javascript:highlightAndClick(".logo")][A Tour of Go]] to find out what else
-you can learn about Go, or go directly to the [[javascript:click('.next-page')][next lesson]].
+Сейчас кликните на [[javascript:highlightAndClick(".logo")][Тур Go]], чтобы узнать что еще
+вы можете выучить о Go, или напрямую кликните на [[javascript:click('.next-page')][следующий урок]].
