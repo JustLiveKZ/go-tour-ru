@@ -86,7 +86,7 @@ https://golang.org
 
 #appengine: * Go Playground
 #appengine: 
-#appengine: Этот тут построен на [[https://play.golang.org/][Go Playground]],
+#appengine: Этот тур построен на [[https://play.golang.org/][Go Playground]],
 #appengine: веб-сервисе, который работает на серверах [[https://golang.org/][golang.org]].
 #appengine: 
 #appengine: Сервис получает программу на языке Go, компилирует, линкует и запускает программу внутри
