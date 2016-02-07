@@ -1,309 +1,307 @@
-Methods and interfaces
-This lesson covers methods and interfaces, the constructs that define objects and their behavior.
+Методы и интерфейсы
+Этот урок описывает методы и интерфесы, конструкции, которые определяют объекты и их поведение.
 
-The Go Authors
+Авторы Go
 https://golang.org
 
-* Methods
+* Методы
 
-Go does not have classes.
-However, you can define methods on types.
+В Go нет классов.
+Однако, вы можете определить методы у типов.
 
-A method is a function with a special _receiver_ argument.
+Метод - это функция со специальным аргументом _получатель_.
 
-The receiver appears in its own argument list between the `func` keyword and
-the method name.
+Получатель указывается в собственном списке аргументов между ключевым словом `func` и
+названием метода.
 
-In this example, the `Abs` method has a receiver of type `Vertex` named `v`.
+В этом примере, метод `Abs` имеет получателя типа `Vertex`, названного `v`.
 
 .play methods/methods.go
 
-* Methods are functions
+* Методы - это функции
 
-Remember: a method is just a function with a receiver argument.
+Помните: метод - это функция с получателем.
 
-Here's `Abs` written as a regular function with no change in functionality.
+Здесь `Abs` написана как обычная функция без изменения функциональности.
 
 .play methods/methods-funcs.go
 
-* Methods continued
+* Методы (продолжение)
 
-You can declare a method on non-struct types, too.
+Вы можете объявлять методы у неструктурных типов.
 
-In this example we see a numeric type `MyFloat` with an `Abs` method.
+В этом примере мы видим числовой тип `MyFloat` с методом `Abs`.
 
-You can only declare a method with a receiver whose type is defined in the same
-package as the method.
-You cannot declare a method with a receiver whose type is defined in another
-package (which includes the built-in types such as `int`).
+Вы можете объявить метод только с теми типами получателей, которые объялены в том же
+пакете, что и метод.
+Вы не можете объявить метод с типом получателя, объявленным в другом
+пакете (что включает также и встроенные типа, как `int`).
 
 .play methods/methods-continued.go
 
-* Pointer receivers
+* Получатели по указателю
 
-You can declare methods with pointer receivers.
+Вы можете объявить метод с получателем по указателю.
 
-This means the receiver type has the literal syntax `*T` for some type `T`.
-(Also, `T` cannot itself be a pointer such as `*int`.)
+Это значит, что тип получателя имеет вид `*T` для какого-либо типа `T`.
+(Также, `T` не может сам быть указателем, как `*int`.)
 
-For example, the `Scale` method here is defined on `*Vertex`.
+Например, метод `Scale` определен у типа `*Vertex`.
 
-Methods with pointer receivers can modify the value to which the receiver
-points (as `Scale` does here).
-Since methods often need to modify their receiver, pointer receivers are more
-common than value receivers.
+Методы с получателями по указателю могут изменять значение, на которое ссылается
+получатель (как метод `Scale` делает в данном случае).
+Так как методы часто изменяют получателя, получатели по указателю более часты в использовании,
+чем получатели по значению.
 
-Try removing the `*` from the declaration of the `Scale` function on line 16
-and observe how the program's behavior changes.
+Попробуйте убрать `*` из объявления функции `Scale` в строке 16
+и посмотрите как изменится поведение программы.
 
-With a value receiver, the `Scale` method operates on a copy of the original
-`Vertex` value.
-(This is the same behavior as for any other function argument.)
-The `Scale` method must have a pointer receiver to change the `Vertex` value
-declared in the `main` function.
+С получателем по значению, метод `Scale` работает с копией оригинального значения
+`Vertex`.
+(Это поведение также распространяется и на другие аргументы функций.)
+Метод `Scale` должен иметь получателя по указателю, чтобы изменять значение типа `Vertex`,
+объявленное в функции `main`.
 
 .play methods/methods-pointers.go
 
-* Pointers and functions
+* Указатели и функции
 
-Here we see the `Abs` and `Scale` methods rewritten as functions.
+Здесь мы видим методы `Abs` и `Scale`, переписанные как функции.
 
-Again, try removing the `*` from line 16.
-Can you see why the behavior changes?
-What else did you need to change for the example to compile?
+Снова, попробуйте удалить `*` из строки 16.
+Можете ли вы понять, почему поведение изменилось?
+Что еще вы должны поменять в программе, чтобы она скомпилировалась?
 
-(If you're not sure, continue to the next page.)
+(Если вы не уверены, перейдите к следующей странице.)
 
 .play methods/methods-pointers-explained.go
 
-* Methods and pointer indirection
+* Методы и разыменовывание указателей
 
-Comparing the previous two programs, you might notice that
-functions with a pointer argument must take a pointer:
+Сравнивая две предыдущие программы, вы могли заметить, что
+функции с аргументом по указателю должны получать указатель:
 
 	var v Vertex
-	ScaleFunc(v)  // Compile error!
+	ScaleFunc(v)  // Ошибка компиляции!
 	ScaleFunc(&v) // OK
 
-while methods with pointer receivers take either a value or a pointer as the
-receiver when they are called:
+а методы с получателем по указателю могут принимать либо значение, либо указатель в качестве
+получателя при вызове:
 
 	var v Vertex
 	v.Scale(5)  // OK
 	p := &v
 	p.Scale(10) // OK
 
-For the statement `v.Scale(5)`, even though `v` is a value and not a pointer,
-the method with the pointer receiver is called automatically.
-That is, as a convenience, Go interprets the statement `v.Scale(5)` as
-`(&v).Scale(5)` since the `Scale` method has a pointer receiver.
+Для выражения `v.Scale(5)`, хотя `v` является значением, а не указателем,
+метод с получателем по указателю будет вызван автоматически.
+Для удобства, Go интерпретирует выражение `v.Scale(5)` как
+`(&v).Scale(5)`, так как метод `Scale` ожидает получателя по указателю.
 
 .play methods/indirection.go
 
-* Methods and pointer indirection (2)
+* Методы и разыменовывание указателей (2)
 
-The equivalent thing happens in the reverse direction.
+То же самое случается и в обратном порядке.
 
-Functions that take a value argument must take a value of that specific type:
+Функции, которые ожидают значение, должны принимать значение данного конкретного типа:
 
 	var v Vertex
 	fmt.Println(AbsFunc(v))  // OK
-	fmt.Println(AbsFunc(&v)) // Compile error!
+	fmt.Println(AbsFunc(&v)) // Ошибка компиляции!
 
-while methods with value receivers take either a value or a pointer as the
-receiver when they are called:
+а методы с получателем по значению могут принимать либо значение, либо указатель в качестве
+получателя при вызове:
 
 	var v Vertex
 	fmt.Println(v.Abs()) // OK
 	p := &v
 	fmt.Println(p.Abs()) // OK
 
-In this case, the method call `p.Abs()` is interpreted as `(*p).Abs()`.
+В данном случае, вызов метода `p.Abs()` интерпретируется как `(*p).Abs()`.
 
 .play methods/indirection-values.go
 
-* Choosing a value or pointer receiver
+* Выбор между получателем по значению и указателю
 
-There are two reasons to use a pointer receiver.
+Есть две причины, чтобы использовать получатель по указателю.
 
-The first is so that the method can modify the value that its receiver points to.
+Первая - методы смогут изменять значение, на которое ссылается получатель.
 
-The second is to avoid copying the value on each method call.
-This can be more efficient if the receiver is a large struct, for example.
+Вторая - избежать копирования значения при каждом вызове метода.
+Это может быть эффективно, если, например, получателем является большая струтура.
 
-In this example, both `Scale` and `Abs` are with receiver type `*Vertex`,
-even though the `Abs` method needn't modify its receiver.
+В данном примере, `Scale` и `Abs` имеют тип получателя `*Vertex`,
+хотя `Abs` не изменяет получателя.
 
-In general, all methods on a given type should have either value or pointer
-receivers, but not a mixture of both.
-(We'll see why over the next few pages.)
+В общем, все методы типа должны иметь либо получателя по значению, либо по указателю,
+но не смесь обоих вариантов.
+(Вы увидим почему так в следующих уроках.)
 
 .play methods/methods-with-pointer-receivers.go
 
-* Interfaces
+* Интерфейсы
 
-An _interface_type_ is defined as a set of method signatures.
+_Интерфейс_ определяется как набор определений методов.
 
-A value of interface type can hold any value that implements those methods.
+Значение интерфейса может содержать любое значение, которое реализует эти методы.
 
-*Note:* There is an error in the example code on line 22.
-`Vertex` (the value type) doesn't implement `Abser` because
-the `Abs` method is defined only on `*Vertex` (the pointer type).
+*Замечание:* В данном примере ошибка в строке 22.
+`Vertex` (тип-значение) не реализует интерфейс `Abser`, так как
+метод `Abs` определен только у `*Vertex` (тип-указатель).
 
 .play methods/interfaces.go
 
-* Interfaces are implemented implicitly
+* Интерфейсы реализуются неявно
 
-A type implements an interface by implementing its methods.
-There is no explicit declaration of intent, no "implements" keyword.
+Тип релизует интерфейс через реализацию его методов.
+Здесь нет явного объявления реализации через ключевое слово "implements".
 
-Implicit interfaces decouple the definition of an interface from its
-implementation, which could then appear in any package without prearrangement.
+Неявные интерфейсы разъединяют определение интерфейса от его
+реализации, которая может быть в любом пакете.
 
 .play methods/interfaces-are-satisfied-implicitly.go
 
-* Interface values
+* Значения интерфейсов
 
-Under the covers, interface values can be thought of as a tuple of a value and a
-concrete type:
+Интерфейсы могут рассматрироваться как кортеж из значения и конкретного типа:
 
 	(value, type)
 
-An interface value holds a value of a specific underlying concrete type.
+Значение интерфейса содержит значение конкретного типа.
 
-Calling a method on an interface value executes the method of the same name on
-its underlying type.
+Вызов метода у значения интерфейса выполняет метод с таким же именем у
+его конкретного типа.
 
 .play methods/interface-values.go
 
-* Interface values with nil underlying values
+* Интерфейсы с внутренними пустыми значениями
 
-If the concrete value inside the interface itself is nil,
-the method will be called with a nil receiver.
+Если конкретное значение внутри интерфейса является `nil`,
+то метод будет вызван с nil-получателем.
 
-In some languages this would trigger a null pointer exception,
-but in Go it is common to write methods that gracefully handle being called
-with a nil receiver (as with the method `M` in this example.)
+В некоторых языках это спровоцирует ошибку нулевого указателя,
+но в Go вы можете писать методы, которые будут работать даже при вызове
+с нулевым получателем (как метод `M` в примере.)
 
-Note that an interface value that holds a nil concrete value is itself non-nil.
+Обратите внимание, что значение интерфейса, который содержит конкретное значение nil, само по себе не nil.
 
 .play methods/interface-values-with-nil.go
 
-* Nil interface values
+* Нулевой интерфейс
 
-A nil interface value holds neither value nor concrete type.
+Нулевой интерфейс не содержит ни значения, ни конкретного типа.
 
-Calling a method on a nil interface is a run-time error because there is no
-type inside the interface tuple to indicate which _concrete_ method to call.
+Вызов метода у нулевого указателя спровоцирует ошибку времени выполнения, так как
+внутри интерфейса нет конкретного типа, чтобы узнать, какой _конкретный_ метод надо вызвать.
 
 .play methods/nil-interface-values.go
 
-* The empty interface
+* Пустой интерфейс
 
-The interface type that specifies zero methods is known as the _empty_interface_:
+Интерфейс, которые не определяет ни одного метода, также известен как _пустой_интерфейс_:
 
 	interface{}
 
-An empty interface may hold values of any type.
-(Every type implements at least zero methods.)
+Пустой интерфейс может содержать значение любого типа.
+(Любой тип реализует по крайней мере 0 методов.)
 
-Empty interfaces are used by code that handles values of unknown type.
-For example, `fmt.Print` takes any number of arguments of type `interface{}`.
+Пустые интерфейсы используются при обработке значений неизвестного типа.
+Например, `fmt.Print` принимает любой число аргументов типа `interface{}`.
 
 .play methods/empty-interface.go
 
-* Type assertions
+* Проверка типов
 
-A _type_assertion_ provides access to an interface value's underlying concrete value.
+_Проверка_типов_ предоставляет доступ к конкретному внутреннему значению интерфейса.
 
 	t := i.(T)
 
-This statement asserts that the interface value `i` holds the concrete type `T`
-and assigns the underlying `T` value to the variable `t`.
+Это выражение проверяет, что интерфейс `i` содержит конкретный тип `T`
+и присваивает внутреннее значение типа `T` переменной `t`.
 
-If `i` does not hold a `T`, the statement will trigger a panic.
+Если `i` не содержит тип `T`, выражение вызовет ошибку.
 
-To _test_ whether an interface value holds a specific type,
-a type assertion can return two values: the underlying value
-and a boolean value that reports whether the assertion succeeded.
+Чтобы _проверить_, содержит ли  интерфейс значение конкретного типа,
+проверка типа может вернуть два значения: внутренне значение
+и булево значение, которое сообщает, успешна ли проверка.
 
 	t, ok := i.(T)
 
-If `i` holds a `T`, then `t` will be the underlying value and `ok` will be true.
+Если `i` содержит тип `T`, то `t` будет внутренним значением и `ok` будет `true`.
 
-If not, `ok` will be false and `t` will be the zero value of type `T`,
-and no panic occurs.
+Если нет, то `ok` будет `false` и `t` будет значением по умолчанию для типа `T`,
+причем не будет ошибок.
 
-Note the similarity between this syntax and that of reading from a map.
+Заметьте схожесть этого систаксиса с получением элемента из словаря.
 
 .play methods/type-assertions.go
 
-* Type switches
+* Switch по типу
 
-A _type_switch_ is a construct that permits several type assertions in series.
+_Switch_по_типу_ является конструкцией, которая позволяет проводить несколько проверок типов подряд.
 
-A type switch is like a regular switch statement, but the cases in a type
-switch specify types (not values), and those values are compared against
-the type of the value held by the given interface value.
+Switch по типу похож на обычную конструкцию switch, но case-случаи в switch-e по типу
+определяют типы (не значения), и они сравниваются с
+типом значения, которое содержит интерфейс.
 
 	switch v := i.(type) {
 	case T:
-		// here v has type T
+		// здесь v имеет тип T
 	case S:
-		// here v has type S
+		// здесь v имеет тип S
 	default:
-		// no match; here v has the same type as i
+		// нет совпадений; здесь v имеет тот же тип, что и i
 	}
 
-The declaration in a type switch has the same syntax as a type assertion `i.(T)`,
-but the specific type `T` is replaced with the keyword `type`.
+Объявление switch-а по типа имеет тот же синтакс, как и проверка типа `i.(T)`,
+но конкретный тип `T` заменен ключевым словом `type`.
 
-This switch statement tests whether the interface value `i`
-holds a value of type `T` or `S`.
-In each of the `T` and `S` cases, the variable `v` will be of type
-`T` or `S` respectively and hold the value held by `i`.
-In the default case (where there is no match), the variable `v` is
-of the same interface type and value as `i`.
+Эта switch конструкция проверяет, содержит ли интерфейс `i`
+значение типа `T` или `S`.
+В каждом из случаев `T` и `S`, переменная `v` будет типа
+`T` или `S` соответственно и иметь значение как и у интерфейса `i`.
+В случае default (когда не было совпадений), переменная `v` будет
+будет такого же типа интерфейса и значения, как и `i`.
 
 .play methods/type-switches.go
 
 * Stringers
 
-One of the most ubiquitous interfaces is [[//golang.org/pkg/fmt/#Stringer][`Stringer`]] defined by the [[//golang.org/pkg/fmt/][`fmt`]] package.
+Один из самых вездесущих интерфейсов - [[//golang.org/pkg/fmt/#Stringer][`Stringer`]], определенный в пакете [[//golang.org/pkg/fmt/][`fmt`]].
 
 	type Stringer interface {
 		String() string
 	}
 
-A `Stringer` is a type that can describe itself as a string. The `fmt` package
-(and many others) look for this interface to print values.
+`Stringer` является типом, которым может описать себя строкой. Пакет `fmt`
+(и многие другие) используют этот интерфейс при выводе значений.
 
 .play methods/stringer.go
 
-* Exercise: Stringers
+* Упражнение: Stringers
 
-Make the `IPAddr` type implement `fmt.Stringer` to print the address as
-a dotted quad.
+Сделайте так, чтобы тип `IPAddr` реализовывал интерфейс `fmt.Stringer` для вывода IP-адреса
+как четыре числа, разделенных точкой.
 
-For instance, `IPAddr{1,`2,`3,`4}` should print as `"1.2.3.4"`.
+Например, `IPAddr{1,`2,`3,`4}` должно вывести `"1.2.3.4"`.
 
 .play methods/exercise-stringer.go
 
-* Errors
+* Ошибки
 
-Go programs express error state with `error` values. 
+Программы на Go выражают состояние ошибки через значения `error`.
 
-The `error` type is a built-in interface similar to `fmt.Stringer`:
+Тип `error` является встроенным интерфейсом, как и `fmt.Stringer`:
 
 	type error interface {
 		Error() string
 	}
 
-(As with `fmt.Stringer`, the `fmt` package looks for the `error` interface when
-printing values.)
+(Как и с `fmt.Stringer`, пакет `fmt` использует интерфейс `error` при выводе значений.)
 
-Functions often return an `error` value, and calling code should handle errors
-by testing whether the error equals `nil`.
+Функции часто возвращают значение типа `error`, и вызывающий код должен обрабатывать ошибки
+проверкой того, является ли ошибка нулевой(`nil`) или нет.
 
 	i, err := strconv.Atoi("42")
 	if err != nil {
@@ -312,76 +310,76 @@ by testing whether the error equals `nil`.
 	}
 	fmt.Println("Converted integer:", i)
 
-A nil `error` denotes success; a non-nil `error` denotes failure.
+Нулевая ошибка обозначает успех; ненулевая ошибка обозначает неудачу.
 
 .play methods/errors.go
 
-* Exercise: Errors
+* Упражнение: Ошибки
 
-Copy your `Sqrt` function from the [[/flowcontrol/8][earlier exercise]] and modify it to return an `error` value.
+Скопируйте вашу фукнцию `Sqrt` с [[/flowcontrol/8][предыдущего упражнения]] и измените её, чтобы она возвращала значение `error`.
 
-`Sqrt` should return a non-nil error value when given a negative number, as it doesn't support complex numbers.
+`Sqrt` должна возвращает ненулевую ошибку если было передано отрицательное число, так как функция не поддерживает комплексные числа.
 
-Create a new type
+Создайте новый тип
 
 	type ErrNegativeSqrt float64
 
-and make it an `error` by giving it a
+и реализуйте интерфейс `error` через реализизацию
 
 	func (e ErrNegativeSqrt) Error() string
 
-method such that `ErrNegativeSqrt(-2).Error()` returns `"cannot`Sqrt`negative`number:`-2"`.
+метода так, чтобы `ErrNegativeSqrt(-2).Error()` возвращало `"cannot`Sqrt`negative`number:`-2"`.
 
-*Note:* a call to `fmt.Sprint(e)` inside the `Error` method will send the program into an infinite loop. You can avoid this by converting `e` first: `fmt.Sprint(float64(e))`. Why?
+*Замечание:* вызов `fmt.Sprint(e)` внутри метода `Error` отправит программу в бесконечный цикл. Вы можете избежать этого, сначала сконверитровав `e`: `fmt.Sprint(float64(e))`. Почему?
 
-Change your `Sqrt` function to return an `ErrNegativeSqrt` value when given a negative number.
+Измените вашу функцию `Sqrt`, чтобы она возвращала значение `ErrNegativeSqrt`, если ей передать отрицательное число.
 
 .play methods/exercise-errors.go
 
 * Readers
 
-The `io` package specifies the `io.Reader` interface,
-which represents the read end of a stream of data.
+Пакет `io` определяет интерфейс `io.Reader`,
+который представляет считывание данных по конца потока.
 
-The Go standard library contains [[https://golang.org/search?q=Read#Global][many implementations]] of these interfaces, including files, network connections, compressors, ciphers, and others.
+Стандартная библиотека Go содержит [[https://golang.org/search?q=Read#Global][много реализаций]] этого интерфейса, включая файлы, сетевые соединения, компрессоры, шифраторы и другое.
 
-The `io.Reader` interface has a `Read` method:
+Интерфейс `io.Reader` имеет метод `Read`:
 
 	func (T) Read(b []byte) (n int, err error)
 
-`Read` populates the given byte slice with data and returns the number of bytes
-populated and an error value. It returns an `io.EOF` error when the stream
-ends.
+`Read` заполняет данный слайс из байтов данными, возвращает число считанных
+байтов и значение ошибки. Метод возвращает ошибку `io.EOF` если поток
+закончился.
 
-The example code creates a 
+Данный пример создает
 [[//golang.org/pkg/strings/#Reader][`strings.Reader`]]
-and consumes its output 8 bytes at a time.
+и потребляет его вывод по 8 байт за один раз.
 
 .play methods/reader.go
 
-* Exercise: Readers
+* Упражнение: Readers
 
-Implement a `Reader` type that emits an infinite stream of the ASCII character
+Реализуйте тип `Reader`, который производит бесконечный поток ASCII-символа
 `'A'`.
 
 .play methods/exercise-reader.go
 
-* Exercise: rot13Reader
+* Упражнение: rot13Reader
 
-A common pattern is an [[https://golang.org/pkg/io/#Reader][io.Reader]] that wraps another `io.Reader`, modifying the stream in some way.
+Часто используемый паттерн, когда [[https://golang.org/pkg/io/#Reader][io.Reader]] которые оборачивает другой `io.Reader`, изменяя поток каким-либо образом.
 
-For example, the [[https://golang.org/pkg/compress/gzip/#NewReader][gzip.NewReader]] function takes an `io.Reader` (a stream of compressed data) and returns a `*gzip.Reader` that also implements `io.Reader` (a stream of the decompressed data).
+Например, функция [[https://golang.org/pkg/compress/gzip/#NewReader][gzip.NewReader]] принимает `io.Reader` (поток сжатых данных) и возвращает `*gzip.Reader`, который тоже реализует `io.Reader` (поток разархивированных данных).
 
-Implement a `rot13Reader` that implements `io.Reader` and reads from an `io.Reader`, modifying the stream by applying the [[https://en.wikipedia.org/wiki/ROT13][rot13]] substitution cipher to all alphabetical characters.
+Реализуйте `rot13Reader`, который реализует `io.Reader` и считывает данные с `io.Reader`, изменяет поток, применяя шифр [[https://en.wikipedia.org/wiki/ROT13][rot13]] для всех алфавитных символов.
 
-The `rot13Reader` type is provided for you.
-Make it an `io.Reader` by implementing its `Read` method.
+Тип `rot13Reader` предоставлен вам.
+Реализуйте интерфейс `io.Reader` через реализацию метода `Read`.
 
 .play methods/exercise-rot-reader.go
 
-* Images
+* Изображения
 
-[[https://golang.org/pkg/image/#Image][Package image]] defines the `Image` interface:
+[[https://golang.org/pkg/image/#Image][Пакет image]] определяет интерфейс `Image`:
 
 	package image
 
@@ -391,32 +389,32 @@ Make it an `io.Reader` by implementing its `Read` method.
 		At(x, y int) color.Color
 	}
 
-*Note*: the `Rectangle` return value of the `Bounds` method is actually an
-[[https://golang.org/pkg/image/#Rectangle][`image.Rectangle`]], as the
-declaration is inside package `image`.
+*Замечание*: возвращаемое значение `Rectangle` у метода `Bounds` на самом деле является
+[[https://golang.org/pkg/image/#Rectangle][`image.Rectangle`]], так как определение происходит
+внутри пакета `image`.
 
-(See [[https://golang.org/pkg/image/#Image][the documentation]] for all the details.)
+(Смотрите [[https://golang.org/pkg/image/#Image][документацию]] для деталей.)
 
-The `color.Color` and `color.Model` types are also interfaces, but we'll ignore that by using the predefined implementations `color.RGBA` and `color.RGBAModel`. These interfaces and types are specified by the [[https://golang.org/pkg/image/color/][image/color package]]
+Типы `color.Color` и `color.Model` также являются интерфейсами, но мы будем использовать готовые реализации `color.RGBA` и `color.RGBAModel`. Эти интерфейсы и типы определены в пакете [[https://golang.org/pkg/image/color/][image/color]]
 
 .play methods/images.go
 
-* Exercise: Images
+* Упражнение: Изображения
 
-Remember the picture generator you wrote earlier? Let's write another one, but this time it will return an implementation of `image.Image` instead of a slice of data.
+Помните генератор картинки, который вы писали ранее? Давайте напишем еще один, но в этот раз он вернет реализацию `image.Image` вместо слайса данных.
 
-Define your own `Image` type, implement [[https://golang.org/pkg/image/#Image][the necessary methods]], and call `pic.ShowImage`.
+Определите ваш собственный тип `Image`, реализуйте [[https://golang.org/pkg/image/#Image][необходимые методы]], и вызовите `pic.ShowImage`.
 
-`Bounds` should return a `image.Rectangle`, like `image.Rect(0,`0,`w,`h)`.
+Метод `Bounds` должен возвращать `image.Rectangle`, например `image.Rect(0,`0,`w,`h)`.
 
-`ColorModel` should return `color.RGBAModel`.
+Метод `ColorModel` должен возвращать `color.RGBAModel`.
 
-`At` should return a color; the value `v` in the last picture generator corresponds to `color.RGBA{v,`v,`255,`255}` in this one.
+Метод `At` должен возвращать цвет; значение `v` в предыдущем генераторе соответствует значению `color.RGBA{v,`v,`255,`255}` в новом.
 
 .play methods/exercise-images.go
 
-* Congratulations!
+* Поздравления!
 
-You finished this lesson!
+Вы закончили этот урок!
 
-You can go back to the list of [[/list][modules]] to find what to learn next, or continue with the [[javascript:click('.next-page')][next lesson]].
+Вы можете вернуться к списку модулей [[/list][modules]], или перейти к [[javascript:click('.next-page')][следующему уроку]].
