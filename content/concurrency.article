@@ -1,7 +1,8 @@
-Concurrency
-Go provides concurrency constructions as part of the core language. This lessons presents them and gives some examples on how to use it.
+Конкурентность
+Go предоставляет возможности для конкурентного программирования как часть ядра языка. Этот урок описывает эти
+возможности и дает примеры их использования.
 
-The Go Authors
+Авторы Go
 https://golang.org
 
 * Goroutines
