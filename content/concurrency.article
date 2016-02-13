@@ -1,104 +1,115 @@
 Конкурентность
-Go предоставляет возможности для конкурентного программирования как часть ядра языка. Этот урок описывает эти
+Go предоставляет возможности для конкурентного программирования как часть ядра языка. Этот урок описывает данные
 возможности и дает примеры их использования.
 
 Авторы Go
 https://golang.org
 
-* Goroutines
+* Горутины
 
-A _goroutine_ is a lightweight thread managed by the Go runtime.
+_Горутина_ - это легковесный поток, управляемый средой исполнения Go.
 
 	go f(x, y, z)
 
-starts a new goroutine running
+начинает новую горутину, которая запускает
 
 	f(x, y, z)
 
-The evaluation of `f`, `x`, `y`, and `z` happens in the current goroutine and the execution of `f` happens in the new goroutine.
+Вычисление `f`, `x`, `y` и `z` происходит в текущей горутину, а выполнение `f` происходит в новой горутине.
 
-Goroutines run in the same address space, so access to shared memory must be synchronized. The [[https://golang.org/pkg/sync/][`sync`]] package provides useful primitives, although you won't need them much in Go as there are other primitives. (See the next slide.)
+Горутины запускаются в том же адресном пространстве, поэтому доступ к общей памяти должен быть синхронизирован.
+Пакет [[https://golang.org/pkg/sync/][`sync`]] предоставляет полезные примитивы, хотя они вам сильно не понадобятся,
+так как в Go есть другие примитивы. (Смотрите следующий слайд.)
 
 .play concurrency/goroutines.go
 
-* Channels
+* Каналы
 
-Channels are a typed conduit through which you can send and receive values with the channel operator, `<-`.
+Каланы - типизированные трубы, через которые вы можете отправлять и получать значения,
+используя оператор канала, `<-`.
 
-	ch <- v    // Send v to channel ch.
-	v := <-ch  // Receive from ch, and
-	           // assign value to v.
+	ch <- v    // Отправить v в канал ch.
+	v := <-ch  // Получить значение из ch и
+	           // присвоить его v.
 
-(The data flows in the direction of the arrow.)
+(Направление потока данных указывается направление стрелки.)
 
-Like maps and slices, channels must be created before use:
+Как и словари со слайсами, каналы должны быть созданы перед использованием:
 
 	ch := make(chan int)
 
-By default, sends and receives block until the other side is ready. This allows goroutines to synchronize without explicit locks or condition variables.
+По умолчанию, отправка и получение блокируются, пока другая сторона не будет готова. Это позволяет горутинам
+синхронизироваться без явных блокировок и переменных состояния.
 
 .play concurrency/channels.go
 
-* Buffered Channels
+* Буфферизованные каналы
 
-Channels can be _buffered_.  Provide the buffer length as the second argument to `make` to initialize a buffered channel:
+Каналы могут быть _буфферизованными_.  Передайте размер буфера вторым аргументом в функцию `make`,
+чтобы создать буфферизованный канал:
 
 	ch := make(chan int, 100)
 
-Sends to a buffered channel block only when the buffer is full. Receives block when the buffer is empty.
+Отправка в буфферизованный канал блокируется, только если буффер полный.
+Получение блокируется, когда буффер пустой.
 
-Modify the example to overfill the buffer and see what happens.
+Измените пример, чтобы переполнить буффер и посмотрите что случится.
 
 .play concurrency/buffered-channels.go
 
-* Range and Close
+* Закрытие канала и использование range для итерирования
 
-A sender can `close` a channel to indicate that no more values will be sent. Receivers can test whether a channel has been closed by assigning a second parameter to the receive expression: after
+Отправитель может `закрыть` (`close`) канал, чтобы обозначить то, что больше не будет отправлено значений.
+Получатели могут узнать, закрыт ли канал, используя второй параметр при получении значения: после
 
 	v, ok := <-ch
 
-`ok` is `false` if there are no more values to receive and the channel is closed.
+`ok` будет `false`, если больше нет значений для получения и канал закрыт.
 
-The loop `for`i`:=`range`c` receives values from the channel repeatedly until it is closed.
+Цикл `for`i`:=`range`c` получает значения из канала до тех пор, пока он не будет закрыт.
 
-*Note:* Only the sender should close a channel, never the receiver. Sending on a closed channel will cause a panic.
+*Замечание:* Только отправитель должен закрывать канал, но не получатель. Отправка в закрытый канал вызовет ошибку.
 
-*Another*note*: Channels aren't like files; you don't usually need to close them. Closing is only necessary when the receiver must be told there are no more values coming, such as to terminate a `range` loop.
+*Еще одно*замечание*: Каналы не файлы; обычно вам не нужно их закрывать. Закрытие необходимо, только если получатель
+должен быть уведомлен о том, что больше значений не будет, например для завершения цикла `range`.
 
 .play concurrency/range-and-close.go
 
 * Select
 
-The `select` statement lets a goroutine wait on multiple communication operations.
+Оператор `select` позволяет горутине ожидать нескольких операций коммуникации.
 
-A `select` blocks until one of its cases can run, then it executes that case.  It chooses one at random if multiple are ready.
+Оператор `select` блокируется до тех пор, пока один из его кейсов не сможет продолжить выполнение,
+в этом случае выполняется этот кейс. Если несколько кейсов готовы, то выбирается один случайным образом.
 
 .play concurrency/select.go
 
-* Default Selection
+* Default в Select
 
-The `default` case in a `select` is run if no other case is ready.
+Кейс `default` в операторе `select` запускается, если ни один из кейсов не готов.
 
-Use a `default` case to try a send or receive without blocking:
+Используйте кейс `default` для отправки и получения без блокировки:
 
 	select {
 	case i := <-c:
-		// use i
+		// использовать i
 	default:
-		// receiving from c would block
+		// получение из c приведет к блокировке
 	}
 
 .play concurrency/default-selection.go
 
-* Exercise: Equivalent Binary Trees
+* Упражнение: Эквивалентные бинарные деревья
 
-There can be many different binary trees with the same sequence of values stored at the leaves. For example, here are two binary trees storing the sequence 1, 1, 2, 3, 5, 8, 13.
+Может существовать много бинарных деревьев, которые хранят одинаковые значения.
+Например, здесь представлены два бинарных дерева, хранящих значения 1, 1, 2, 3, 5, 8, 13.
 
 .image /content/img/tree.png
 
-A function to check whether two binary trees store the same sequence is quite complex in most languages. We'll use Go's concurrency and channels to write a simple solution.
+Функция для проверки того, что бинарные деревья содержат одинаковые значения, довольно сложные во многих языках.
+Мы будем использовать конкурентность Go и каналы для написания простого решения.
 
-This example uses the `tree` package, which defines the type:
+Данный пример использует пакет `tree`, который определяет тип:
 
 	type Tree struct {
 		Left  *Tree
@@ -107,100 +118,104 @@ This example uses the `tree` package, which defines the type:
 	}
 
 
-Continue description on [[javascript:click('.next-page')][next page]].
+Продолжение описания на [[javascript:click('.next-page')][следующей странице]].
 
-* Exercise: Equivalent Binary Trees
+* Упражнение: Эквивалентные бинарные деревья
 
-*1.* Implement the `Walk` function.
+*1.* Реализуйте функцию `Walk`.
 
-*2.* Test the `Walk` function.
+*2.* Протестируйте функцию `Walk`.
 
-The function `tree.New(k)` constructs a randomly-structured binary tree holding the values `k`, `2k`, `3k`, ..., `10k`.
+Функция `tree.New(k)` создает новое дерево со случайной структурой, содержащее значения `k`, `2k`, `3k`, ..., `10k`.
 
-Create a new channel `ch` and kick off the walker:
+Создайте новый канал `ch` и запустите проход по дереву:
 
 	go Walk(tree.New(1), ch)
 
-Then read and print 10 values from the channel. It should be the numbers 1, 2, 3, ..., 10.
+Затем считайте и выведите 10 значений из канала. Это должны быть числа 1, 2, 3, ..., 10.
 
-*3.* Implement the `Same` function using `Walk` to determine whether `t1` and `t2` store the same values.
+*3.* Реализуйте функцию `Same` используя функцию `Walk`, чтобы узнать, содержат ли `t1` и `t2` одинаковые значения.
 
-*4.* Test the `Same` function.
+*4.* Протестируйте функцию `Same`.
 
-`Same(tree.New(1),`tree.New(1))` should return true, and `Same(tree.New(1),`tree.New(2))` should return false.
+`Same(tree.New(1),`tree.New(1))` должно возвращать true, а `Same(tree.New(1),`tree.New(2))` должно возвращать false.
 
-The documentation for `Tree` can be found [[https://godoc.org/golang.org/x/tour/tree#Tree][here]].
+Документация `Tree` доступна [[https://godoc.org/golang.org/x/tour/tree#Tree][здесь]].
 
 .play concurrency/exercise-equivalent-binary-trees.go
 
 * sync.Mutex
 
-We've seen how channels are great for communication among goroutines.
+Вы увидели, насколько каналы хороши для коммуникации между горутинами.
 
-But what if we don't need communication? What if we just want to make sure only
-one goroutine can access a variable at a time to avoid conflicts?
+Но что, если нам не нужна коммуникация? Что, если мы просто хотим удостововериться, что в каждый момент времени
+только одна горутина может иметь доступ к переменной, во избежание конфликтов?
 
-This concept is called _mutual_exclusion_, and the conventional name for the data structure that provides it is _mutex_.
+Эта концепция называется _взаимным_исключением_, и традиционно структура, которая его предоставляет, называется _mutex_.
 
-Go's standard library provides mutual exclusion with
-[[https://golang.org/pkg/sync/#Mutex][`sync.Mutex`]] and its two methods:
+Стандартная библиотека Go предоставляет взаимные исключения с использованием
+[[https://golang.org/pkg/sync/#Mutex][`sync.Mutex`]] и его двумя методами:
 
 - `Lock`
 - `Unlock`
 
-We can define a block of code to be executed in mutual exclusion by surrounding it
-with a call to `Lock` and `Unlock` as shown on the `Inc` method.
+Мы можем определить блок кода, который должен выполниться во взаимном исключении, окружив его вызовами
+методов `Lock` и `Unlock`, как показано в методе `Inc`.
 
-We can also use `defer` to ensure the mutex will be unlocked as in the `Value` method.
+Мы также можем использовать `defer`, чтобы удостовериться в том, что `mutex` будет разблокирован,
+как в методе `Value`.
 
 .play concurrency/mutex-counter.go
 
-* Exercise: Web Crawler
+* Упражнение: Web-парсер
 
-In this exercise you'll use Go's concurrency features to parallelize a web crawler.
+В этом упражнении вы будете использовать возможности Go для конкуретного программирования,
+чтобы распараллелить web-парсер.
 
-Modify the `Crawl` function to fetch URLs in parallel without fetching the same URL twice.
+Измените функцию `Crawl` для обрабоки URL параллельно, при этом не обрабатывая один и тот же URL дважды.
 
-_Hint_: you can keep a cache of the URLs that have been fetched on a map, but maps alone are not
-safe for concurrent use!
+_Совет_: вы можете сохранять обработанные URL в словаре, но словари сами по себе небезопасны для параллельного
+использования!
 
 .play concurrency/exercise-web-crawler.go
 
-* Where to Go from here...
+* Что дальше...
 
-#appengine: You can get started by
-#appengine: [[https://golang.org/dl/][installing Go]].
+#appengine: Вы можете начать с
+#appengine: [[https://golang.org/dl/][установки Go]].
 
-#appengine: Once you have Go installed, the
-The
-[[https://golang.org/doc/][Go Documentation]] is a great place to
-#appengine: continue.
-start.
-It contains references, tutorials, videos, and more.
+#appengine: После установки Go,
+[[https://golang.org/doc/][документация Go]] является отличным местом
+#appengine: для продолжения.
 
-To learn how to organize and work with Go code, watch [[https://www.youtube.com/watch?v=XCsL89YtqCs][this screencast]] or read [[https://golang.org/doc/code.html][How to Write Go Code]].
+Она содержит ссылки, обучения, видео и многое другое.
 
-If you need help with the standard library, see the [[https://golang.org/pkg/][package reference]]. For help with the language itself, you might be surprised to find the [[https://golang.org/ref/spec][Language Spec]] is quite readable.
+Что узнать, как организовывать и работать с кодом на Go, посмотрите
+[[https://www.youtube.com/watch?v=XCsL89YtqCs][это видео]] или прочиайте
+[[https://golang.org/doc/code.html][Как писать код на Go]].
 
-To further explore Go's concurrency model, watch
+Если вам нужна помощь со стандартной библиотекой, посмотрите [[https://golang.org/pkg/][описание пакетов]].
+Для помощи по самому языку, вы можете прочитать [[https://golang.org/ref/spec][спецификацию языка]].
+
+Для дальшейшего изучения конкуретного программирования в Go посмотрите
 [[https://www.youtube.com/watch?v=f6kdp27TYZs][Go Concurrency Patterns]]
-([[https://talks.golang.org/2012/concurrency.slide][slides]])
-and
+([[https://talks.golang.org/2012/concurrency.slide][слайды]])
+и
 [[https://www.youtube.com/watch?v=QDDwwePbDtw][Advanced Go Concurrency Patterns]]
-([[https://talks.golang.org/2013/advconc.slide][slides]])
-and read the
-[[https://golang.org/doc/codewalk/sharemem/][Share Memory by Communicating]]
-codewalk.
+([[https://talks.golang.org/2013/advconc.slide][слайды]])
+и прочтите статью
+[[https://golang.org/doc/codewalk/sharemem/][Share memory by communicating]].
 
-To get started writing web applications, watch
-[[https://vimeo.com/53221558][A simple programming environment]]
-([[https://talks.golang.org/2012/simple.slide][slides]])
-and read the
-[[https://golang.org/doc/articles/wiki/][Writing Web Applications]] tutorial.
+Чтобы начать писать web-приложения, посмотрите
+[[https://vimeo.com/53221558][The simple programming environment]]
+([[https://talks.golang.org/2012/simple.slide][слайды]])
+и пройдите обучение
+[[https://golang.org/doc/articles/wiki/][Writing Web Applications]].
 
-The [[https://golang.org/doc/codewalk/functions/][First Class Functions in Go]] codewalk gives an interesting perspective on Go's function types.
+Статья [[https://golang.org/doc/codewalk/functions/][First Class Functions in Go]] содержит интересный обзор о
+функция в Go.
 
-The [[https://blog.golang.org/][Go Blog]] has a large archive of informative Go articles.
+[[https://blog.golang.org/][Блог Go]] содержит огромный архив полезные статей о Go.
 
-Visit [[https://golang.org][golang.org]] for more.
+Посетите [[https://golang.org][golang.org]] для большей информации.
 
